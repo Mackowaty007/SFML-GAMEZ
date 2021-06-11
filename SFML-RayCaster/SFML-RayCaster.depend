@@ -1,7 +1,8 @@
 # depslib dependency file v1.0
-1623267842 source:/home/mateusz/Desktop/projects/SFML-RayCaster/main.cpp
+1623427309 source:/home/mateusz/Desktop/projects/SFML-RayCaster/main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
+	<math.h>
 
 1539885013 /home/mateusz/Documents/SFML-2.5.1/include/SFML/Graphics.hpp
 	<SFML/Window.hpp>
