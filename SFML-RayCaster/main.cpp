@@ -14,6 +14,8 @@ float ReturnSin(float angle){
 int main()
 {
     sf::VertexArray lines(sf::LineStrip,2);
+    lines[0].color = sf::Color(255,20,20);
+    lines[1].color = sf::Color(255,20,20);
     //setup
     int screenWidth = 1000; int screenHeight = 500; int pixSize = 50; int arraySize = 10; sf::Vector2f playerPos(300,300); int playerSize = 20; float playerDirection = 0;float rayDirection; int FOV = 40;
 
@@ -34,9 +36,10 @@ int main()
     sf::RectangleShape pix(sf::Vector2f(pixSize-1,pixSize-1));
     sf::RectangleShape player(sf::Vector2f(playerSize,playerSize));
     player.setPosition(100,100);
-    player.setOrigin(10,10);
+    player.setOrigin(playerSize/2,playerSize/2);
     player.setFillColor(sf::Color(100,200,10));
     pix.setFillColor(sf::Color(10,100,50));
+    //pix.setOrigin(pixSize/2,pixSize/2);
 
     while (app.isOpen())
     {
@@ -78,6 +81,10 @@ int main()
                 if(map[y][x]){
                     pix.setPosition(x*pixSize,y*pixSize);
                     app.draw(pix);
+                    //colisions
+                    if(player.getPosition().x > x*pixSize && player.getPosition().x < x*pixSize+pixSize && player.getPosition().y > y*pixSize && player.getPosition().y < y*pixSize+pixSize){
+                        player.move(ReturnCos(playerDirection)/10,ReturnSin(playerDirection)/10);
+                    }
                 }
             }
         }
@@ -85,7 +92,7 @@ int main()
         app.draw(player);
 
         //drawing rays
-        for(int i=-FOV;i<FOV;i++){
+        for(int i=0/*-FOV*/;i<1/*FOV*/;i++){
             rayDirection = playerDirection + i;
             lines[0].position = sf::Vector2f(player.getPosition());
             lines[1].position = sf::Vector2f(player.getPosition().x + ReturnCos(rayDirection) * 100, player.getPosition().y + ReturnSin(rayDirection) * 100);
