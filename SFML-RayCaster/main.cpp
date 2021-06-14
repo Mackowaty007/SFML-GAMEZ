@@ -17,7 +17,7 @@ int main()
     lines[0].color = sf::Color(255,20,20);
     lines[1].color = sf::Color(255,20,20);
     //setup
-    int screenWidth = 1000; int screenHeight = 500; int pixSize = 50; int arraySize = 10; sf::Vector2f playerPos(300,300); int playerSize = 20; float playerDirection = 0;float rayDirection; int FOV = 40;
+    int screenWidth = 1000; int screenHeight = 500; int pixSize = 50; int arraySize = 10; int playerSize = 20; float playerDirection = 0;float rayDirection; int FOV = 40;
 
     int map[arraySize][arraySize] =
     {//10 per 10 array
@@ -79,11 +79,12 @@ int main()
         for(int x=0;x<arraySize;x++){
             for(int y=0;y<arraySize;y++){
                 if(map[y][x]){
+                    //drawing the map
                     pix.setPosition(x*pixSize,y*pixSize);
                     app.draw(pix);
                     //colisions
-                    if(player.getPosition().x > x*pixSize && player.getPosition().x < x*pixSize+pixSize && player.getPosition().y > y*pixSize && player.getPosition().y < y*pixSize+pixSize){
-                        player.move(ReturnCos(playerDirection)/10,ReturnSin(playerDirection)/10);
+                    if(player.getPosition().x+playerSize/2 > x*pixSize-pixSize/2 && player.getPosition().x-playerSize/2 < x*pixSize+pixSize/2 && player.getPosition().y+playerSize/2 > y*pixSize-pixSize/2 && player.getPosition().y-playerSize/2 < y*pixSize+pixSize/2){
+
                     }
                 }
             }
@@ -95,10 +96,14 @@ int main()
         for(int i=0/*-FOV*/;i<1/*FOV*/;i++){
             rayDirection = playerDirection + i;
             lines[0].position = sf::Vector2f(player.getPosition());
-            lines[1].position = sf::Vector2f(player.getPosition().x + ReturnCos(rayDirection) * 100, player.getPosition().y + ReturnSin(rayDirection) * 100);
+            if(playerDirection > 90 && playerDirection < 270){
+                lines[1].position = sf::Vector2f(player.getPosition().x - (static_cast<int>(player.getPosition().x)%pixSize), player.getPosition().y - tan(playerDirection*PI/180)*(static_cast<int>(player.getPosition().x)%pixSize));
+            }
+            else{
+                lines[1].position = sf::Vector2f(player.getPosition().x + (pixSize-(static_cast<int>(player.getPosition().x)%pixSize)), player.getPosition().y + tan(playerDirection*PI/180)*(pixSize-(static_cast<int>(player.getPosition().x)%pixSize)));
+            }
             app.draw(lines);
         }
-
         app.display();
     }
     return EXIT_SUCCESS;
