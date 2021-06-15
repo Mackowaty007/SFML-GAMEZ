@@ -96,6 +96,8 @@ int main()
         for(int i=0/*-FOV*/;i<1/*FOV*/;i++){
             rayDirection = playerDirection + i;
             lines[0].position = sf::Vector2f(player.getPosition());
+
+            //checks if ray is directed to the left or the right
             if(rayDirection > 90 && rayDirection < 270){
                 do{
                     lines[1].position = sf::Vector2f(player.getPosition().x - pixSize*NumberOfRaySteps - 1 - (static_cast<int>(player.getPosition().x)%pixSize), player.getPosition().y - tan(rayDirection*PI/180)*((static_cast<int>(player.getPosition().x)%pixSize)+pixSize*NumberOfRaySteps));
@@ -104,7 +106,12 @@ int main()
                 while(!map[static_cast<int>(lines[1].position.x)/pixSize][static_cast<int>(lines[1].position.y)/pixSize]);
             }
             else{
-                lines[1].position = sf::Vector2f(player.getPosition().x + (pixSize-(static_cast<int>(player.getPosition().x)%pixSize))+1, player.getPosition().y + tan(rayDirection*PI/180)*(pixSize-(static_cast<int>(player.getPosition().x)%pixSize)));
+                //lines[1].position = sf::Vector2f(player.getPosition().x + (pixSize-(static_cast<int>(player.getPosition().x)%pixSize))+1,                  player.getPosition().y + tan(rayDirection*PI/180)*(pixSize-(static_cast<int>(player.getPosition().x)%pixSize)));
+                do{
+                    lines[1].position = sf::Vector2f(player.getPosition().x + pixSize*NumberOfRaySteps - (static_cast<int>(player.getPosition().x)%pixSize), player.getPosition().y + tan(rayDirection*PI/180)*(pixSize*NumberOfRaySteps-(static_cast<int>(player.getPosition().x)%pixSize)));
+                    NumberOfRaySteps++;
+                }
+                while(!map[static_cast<int>(lines[1].position.x)/pixSize][static_cast<int>(lines[1].position.y)/pixSize]);
             }
             app.draw(lines);
             std::cout << NumberOfRaySteps << std::endl;
