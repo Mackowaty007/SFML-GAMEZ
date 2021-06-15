@@ -14,8 +14,12 @@ float ReturnSin(float angle){
 int main()
 {
     sf::VertexArray lines(sf::LineStrip,2);
+    sf::VertexArray Hlines(sf::LineStrip,2);
     lines[0].color = sf::Color(255,20,20);
     lines[1].color = sf::Color(255,20,20);
+    Hlines[0].color = sf::Color(20,200,210);
+    Hlines[1].color = sf::Color(20,200,210);
+
     //setup
     int screenWidth = 1000; int screenHeight = 500; int pixSize = 50; int arraySize = 10; int playerSize = 20; float playerDirection = 0;float rayDirection; int FOV = 20;
     float NumberOfRaySteps = 1;
@@ -93,7 +97,7 @@ int main()
         app.draw(player);
 
         //drawing rays
-        for(int i=-FOV;i<FOV;i++){
+        for(int i=0/*-FOV*/;i<1/*FOV*/;i++){
             rayDirection = playerDirection + i;
             //Vertical lines
             lines[0].position = sf::Vector2f(player.getPosition());
@@ -122,7 +126,36 @@ int main()
                 while(!map[static_cast<int>(lines[1].position.x)/pixSize][static_cast<int>(lines[1].position.y)/pixSize] && NumberOfRaySteps<10);
             }
             app.draw(lines);
-            //std::cout << lines[1].position.y << std::endl;
+            NumberOfRaySteps = 0;
+
+            //Horizontal lines
+            Hlines[0].position = sf::Vector2f(player.getPosition());
+            //checks if ray is directed to the left or the right
+            //if(rayDirection > 0 && rayDirection < 180){
+                //casts a ray until it hits somehthin
+                //do{
+                    Hlines[1].position = sf::Vector2f(player.getPosition().x - tan(rayDirection*PI/180)*(static_cast<int>(player.getPosition().x)%pixSize, player.getPosition().y - (static_cast<int>(player.getPosition().y)%pixSize));
+                    //NumberOfRaySteps++;
+                    //if(Hlines[1].position.x<0){
+                        //break;
+                    //}
+                //}
+                //cast the ray again if this is true!!!
+                //while(!map[static_cast<int>(Hlines[1].position.x)/pixSize][static_cast<int>(Hlines[1].position.y)/pixSize] && NumberOfRaySteps<10);
+            //}
+            //else{
+                //casts a ray until it hits somehthin
+                //NumberOfRaySteps = 1;
+                //do{
+                //    lines[1].position = sf::Vector2f(player.getPosition().x + pixSize*NumberOfRaySteps -  (static_cast<int>(player.getPosition().x)%pixSize), player.getPosition().y + tan(rayDirection*PI/180)*(pixSize*NumberOfRaySteps-(static_cast<int>(player.getPosition().x)%pixSize)));
+                //    NumberOfRaySteps++;
+                //   if(lines[1].position.y>screenHeight){
+                //        break;
+                //    }
+                //}
+                //while(!map[static_cast<int>(lines[1].position.x)/pixSize][static_cast<int>(lines[1].position.y)/pixSize] && NumberOfRaySteps<10);
+            //}
+            app.draw(Hlines);
             NumberOfRaySteps = 0;
         }
         app.display();
