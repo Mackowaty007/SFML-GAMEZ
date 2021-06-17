@@ -174,10 +174,13 @@ int main()
             if (Vlength > Hlength){
                 Slines[1].position = Hlines[1].position;
                 Slength = Hlength;
+                //set color based on the wall orientation
+                screenBar.setFillColor(sf::Color(200,200,200));
             }
             else {
                 Slines[1].position = lines[1].position;
                 Slength =Vlength;
+                screenBar.setFillColor(sf::Color(255,255,255));
             }
             app.draw(Slines);
 
