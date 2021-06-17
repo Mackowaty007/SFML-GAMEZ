@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1623927552 source:/home/mateusz/Desktop/projects/SFML-Raycaster Laptop/main.cpp
+1623932165 source:/home/mateusz/Desktop/projects/SFML-Raycaster Laptop/main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<math.h>

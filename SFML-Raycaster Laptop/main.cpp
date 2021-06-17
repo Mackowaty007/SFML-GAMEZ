@@ -22,8 +22,8 @@ int main()
     Hlines[1].color = sf::Color(20,200,210);
 
     //setup
-    int screenWidth = 1000; int screenHeight = 500; int pixSize = 50; int arraySize = 10; int playerSize = 20; float playerDirection = 0;float rayDirection; int FOV = 20;
-    float NumberOfRaySteps = 1; float Hlenght,Vlength;
+    int screenWidth = 1000; int screenHeight = 500; int pixSize = 50; int arraySize = 10; int playerSize = 20; float playerDirection = 0;float rayDirection; int FOV = 40/2;
+    float NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV;
     int map[arraySize][arraySize] =
     {//10 per 10 array
         {1,1,1,1,1,1,1,1,1,1},
@@ -40,11 +40,14 @@ int main()
     sf::RenderWindow app(sf::VideoMode(screenWidth, screenHeight), "SFML window");
     sf::RectangleShape pix(sf::Vector2f(pixSize-1,pixSize-1));
     sf::RectangleShape player(sf::Vector2f(playerSize,playerSize));
+    sf::RectangleShape screenBar(sf::Vector2f(screenBarWidth-1,100));
     player.setPosition(100,100);
     player.setOrigin(playerSize/2,playerSize/2);
     player.setFillColor(sf::Color(100,200,10));
     pix.setFillColor(sf::Color(10,100,50));
-    //pix.setOrigin(pixSize/2,pixSize/2);
+
+    screenBar.setFillColor(sf::Color(10,10,200));
+
 
     while (app.isOpen())
     {
@@ -167,31 +170,23 @@ int main()
 
             //get line lenght
             Vlength = sqrt(pow(player.getPosition().x - lines[1].position.x,2)+pow(player.getPosition().y - lines[1].position.y,2));
-            Hlenght = sqrt(pow(player.getPosition().x - Hlines[1].position.x,2)+pow(player.getPosition().y - Hlines[1].position.y,2));
-
-
-
-            if (Vlength > Hlenght){
+            Hlength = sqrt(pow(player.getPosition().x - Hlines[1].position.x,2)+pow(player.getPosition().y - Hlines[1].position.y,2));
+            if (Vlength > Hlength){
                 Slines[1].position = Hlines[1].position;
+                Slength = Hlength;
             }
             else {
                 Slines[1].position = lines[1].position;
+                Slength =Vlength;
             }
             app.draw(Slines);
-            //std::cout << "Vlength = " << Vlength << " x = "<< player.getPosition().x - lines[1].position.x << " y = "<< player.getPosition().y - lines[1].position.y << std::endl;
 
+            //drawing the 3d View
 
-            /*
-            //sum rays
-            Slines[0] = player.getPosition();
-            if(lines[1].position.y>Hlines[1].position.y){
-                Slines[1] = lines[1].position;
-            }
-            else{
-                Slines[1] = Hlines[1].position;
-            }
-            app.draw(Slines);
-            */
+            //fix this for more screen space on the right
+            screenBar.setPosition((screenWidth - screenWidth/4+screenBarWidth/2)+i*screenBarWidth,screenHeight/2-(screenHeight-Slength)/2);
+            screenBar.setSize(sf::Vector2f(screenBarWidth,screenHeight-Slength));
+            app.draw(screenBar);
         }
         app.display();
     }
