@@ -23,26 +23,26 @@ int main()
 
     //setup
     int screenWidth = 1000; int screenHeight = 500; int pixSize = 20; int arraySize = 20; int playerSize = 10; float playerDirection = 0;float rayDirection; int FOV = 90/2;int DOF = 20;int sprintMultiplyer = 3;
-    float NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV;
+    float NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV; int WallColor[3] = {10,100,50};int DoorColor[3] = {100,200,100};
     int map[arraySize][arraySize] =
     {//10 per 10 array (this is basically the game map)
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},//1
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,1,1,1,0,0,0,1,1,0,0,1,1,0,0,1,1,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,1,0,1,0,1,0,1,0,0,0,0,1,0,1,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,0,1},
-        {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,1},
         {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
@@ -202,22 +202,37 @@ int main()
             if (Vlength > Hlength){
                 Slines[1].position = Hlines[1].position;
                 Slength = Hlength;
-                //set color based on the wall orientation
-                screenBar.setFillColor(sf::Color(40,210,100));
+                //set color based on the wall type (for example doors have one color and normal walls have other colors
+                if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
+                    screenBar.setFillColor(sf::Color(WallColor[0],WallColor[1],WallColor[2]));
+                }
+                else{
+                    screenBar.setFillColor(sf::Color(DoorColor[0],DoorColor[1],DoorColor[2]));
+                }
             }
             else {
                 Slines[1].position = lines[1].position;
                 Slength =Vlength;
                 //set color based on the wall orientation
-                screenBar.setFillColor(sf::Color(50,250,110));
+                if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
+                    screenBar.setFillColor(sf::Color(WallColor[0]+30,WallColor[1]+30,WallColor[2]+30));
+                }
+                else{
+                    screenBar.setFillColor(sf::Color(DoorColor[0]+30,DoorColor[1]+30,DoorColor[2]+30));
+                }
             }
             app.draw(Slines);
 
             //drawing the 3d View
 
+            //fixing the fish eye effect (got this from a cool tutorial, cuz i was too dumb to figure this out myself)
+            //float DeltaAngle = playerDirection-rayDirection;
+            //if(DeltaAngle<0){DeltaAngle+=2*PI/180;}if(DeltaAngle>2*PI/180){DeltaAngle-=2*PI/180;}
+            //Slength = Slength * cos(DeltaAngle/180);
+
             //fix this for more screen space on the right
-            screenBar.setPosition((screenWidth - screenWidth/4+screenBarWidth/2)+i*screenBarWidth,screenHeight/2-(screenHeight-Slength-100)/2);
-            screenBar.setSize(sf::Vector2f(screenBarWidth,screenHeight-Slength-100));
+            screenBar.setPosition((screenWidth - screenWidth/4+screenBarWidth/2)+i*screenBarWidth,screenHeight/2-((pixSize*screenHeight)/Slength)/2);
+            screenBar.setSize(sf::Vector2f(screenBarWidth,(pixSize*screenHeight)/Slength));
             app.draw(screenBar);
         }
         app.display();
