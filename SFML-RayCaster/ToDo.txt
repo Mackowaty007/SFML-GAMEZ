@@ -1,0 +1,2 @@
+1. Add a light source
+2. Make adding collored walls easier
