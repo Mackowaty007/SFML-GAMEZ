@@ -22,8 +22,8 @@ int main()
     Hlines[1].color = sf::Color(20,200,210);
 
     //setup
-    int screenWidth = 1000; int screenHeight = 500; int pixSize = 20; int arraySize = 20; int playerSize = 10; float playerDirection = 0;float rayDirection; int FOV = 90/2;int DOF = 20;int sprintMultiplyer = 3;
-    float NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV; int WallColor[3] = {10,100,50};int DoorColor[3] = {100,200,100};
+    int screenWidth = 1000; int screenHeight = 500; int pixSize = 20; int arraySize = 20; int playerSize = 10; float playerDirection = 0;float rayDirection; int FOV = 90/2;int DOF = 20;int sprintSpeed;
+    float NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV; int WallColor[3]={200,200,200};int DoorColor[3]={100,200,100}; int CellingColor[3]={30,70,100};int FloorColor[3]={100,100,100};
     int map[arraySize][arraySize] =
     {//10 per 10 array (this is basically the game map)
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},//1
@@ -50,6 +50,7 @@ int main()
     sf::RectangleShape pix(sf::Vector2f(pixSize-1,pixSize-1));
     sf::RectangleShape player(sf::Vector2f(playerSize,playerSize));
     sf::RectangleShape screenBar(sf::Vector2f(screenBarWidth-1,100));
+    sf::RectangleShape CellingAndFloor(sf::Vector2f(screenWidth/2,screenHeight/2));
     player.setPosition(100,100);
     player.setOrigin(playerSize/2,playerSize/2);
     player.setFillColor(sf::Color(100,200,10));
@@ -68,34 +69,25 @@ int main()
 
         //input
         playerDirection = (sf::Mouse::getPosition(app).x/2)%360;//mouse sensivity
+        //float HeadTilt = (sf::Mouse::getPosition(app).x/2)
 
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){//sprint if shift is pressed
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-            player.move(ReturnCos(playerDirection)/10*sprintMultiplyer,ReturnSin(playerDirection)/10*sprintMultiplyer);
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-                player.move(-ReturnCos(playerDirection)/10*sprintMultiplyer,-ReturnSin(playerDirection)/10*sprintMultiplyer);
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-                player.move(ReturnSin(playerDirection)/10*sprintMultiplyer,-ReturnCos(playerDirection)/10*sprintMultiplyer);
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-                player.move(ReturnSin(-playerDirection)/10*sprintMultiplyer,ReturnCos(playerDirection)/10*sprintMultiplyer);
-            }
+            sprintSpeed = 3;
         }
-        else{//walk normally if shift is not pressed
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-                player.move(ReturnCos(playerDirection)/10,ReturnSin(playerDirection)/10);
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-                player.move(-ReturnCos(playerDirection)/10,-ReturnSin(playerDirection)/10);
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-                player.move(ReturnSin(playerDirection)/10,-ReturnCos(playerDirection)/10);
-            }
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-                player.move(ReturnSin(-playerDirection)/10,ReturnCos(playerDirection)/10);
-            }
+        else{
+            sprintSpeed = 1;
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
+            player.move(ReturnCos(playerDirection)/10*sprintSpeed,ReturnSin(playerDirection)/10*sprintSpeed);
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+            player.move(-ReturnCos(playerDirection)/10*sprintSpeed,-ReturnSin(playerDirection)/10*sprintSpeed);
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
+            player.move(ReturnSin(playerDirection)/10*sprintSpeed,-ReturnCos(playerDirection)/10*sprintSpeed);
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
+            player.move(ReturnSin(-playerDirection)/10*sprintSpeed,ReturnCos(playerDirection)/10*sprintSpeed);
         }
 
         //frame rendering
@@ -125,8 +117,15 @@ int main()
                 }
             }
         }
-        //drawing the player
+        //drawing the player, floor and celling
         app.draw(player);
+
+        CellingAndFloor.setFillColor(sf::Color(CellingColor[0],CellingColor[1],CellingColor[2]));
+        CellingAndFloor.setPosition(screenWidth/2,0);
+        app.draw(CellingAndFloor);
+        CellingAndFloor.setFillColor(sf::Color(FloorColor[0],FloorColor[1],FloorColor[2]));
+        CellingAndFloor.setPosition(screenWidth/2,screenHeight/2);
+        app.draw(CellingAndFloor);
 
         //drawing rays
         Slines[0] = player.getPosition();
@@ -204,7 +203,7 @@ int main()
                 Slength = Hlength;
                 //set color based on the wall type (for example doors have one color and normal walls have other colors
                 if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
-                    screenBar.setFillColor(sf::Color(WallColor[0],WallColor[1],WallColor[2]));
+                    screenBar.setFillColor(sf::Color(WallColor[0]-Slength/2,WallColor[1]-Slength/2,WallColor[2]-Slength/2));
                 }
                 else{
                     screenBar.setFillColor(sf::Color(DoorColor[0],DoorColor[1],DoorColor[2]));
@@ -215,7 +214,7 @@ int main()
                 Slength =Vlength;
                 //set color based on the wall orientation
                 if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
-                    screenBar.setFillColor(sf::Color(WallColor[0]+30,WallColor[1]+30,WallColor[2]+30));
+                    screenBar.setFillColor(sf::Color(WallColor[0]-Slength/2+30,WallColor[1]-Slength/2+30,WallColor[2]-Slength/2+30));
                 }
                 else{
                     screenBar.setFillColor(sf::Color(DoorColor[0]+30,DoorColor[1]+30,DoorColor[2]+30));
@@ -224,6 +223,7 @@ int main()
             app.draw(Slines);
 
             //drawing the 3d View
+
 
             //fixing the fish eye effect (got this from a cool tutorial, cuz i was too dumb to figure this out myself)
             //float DeltaAngle = playerDirection-rayDirection;
