@@ -22,24 +22,26 @@ int main()
     Hlines[1].color = sf::Color(20,200,210);
 
     //setup
-    int screenWidth = 1000; int screenHeight = 500; int pixSize = 20; int arraySize = 20; int playerSize = 10; float playerDirection = 0;float rayDirection; int FOV = 90/2;int DOF = 20;int sprintSpeed;
-    float NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV; int WallColor[3]={200,200,200};int DoorColor[3]={100,200,100}; int CellingColor[3]={30,70,100};int FloorColor[3]={100,100,100};
+    int screenWidth = 1000; int screenHeight = 500; int pixSize = 20; int arraySize = 20; int playerSize = 10; int playerDirection = 0;int rayDirection; int FOV = 90/2;int DOF = 20;int sprintSpeed;
+    int NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV;
+    int WallColor[3]={200,200,200};int DoorColor[3]={0,200,0}; int OrangeColor[3]={255, 100, 0};int BlueColor[3]={0, 0, 255};int WierdColor[3]={255, 192, 203};int CellingColor[3]={30,70,100};int FloorColor[3]={100,100,100};
+
     int map[arraySize][arraySize] =
     {//10 per 10 array (this is basically the game map)
         {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},//1
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,1,1,1,0,0,0,1,1,0,0,1,1,0,0,1,1,0,1},
-        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1,0,0,1},
-        {1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1},
+        {1,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,9,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-        {1,0,0,0,2,0,2,0,2,0,2,0,2,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+        {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -50,12 +52,12 @@ int main()
     sf::RectangleShape pix(sf::Vector2f(pixSize-1,pixSize-1));
     sf::RectangleShape player(sf::Vector2f(playerSize,playerSize));
     sf::RectangleShape screenBar(sf::Vector2f(screenBarWidth-1,100));
+    sf::RectangleShape screenBarBlack(sf::Vector2f(screenBarWidth-1,100));
     sf::RectangleShape CellingAndFloor(sf::Vector2f(screenWidth/2,screenHeight/2));
     player.setPosition(100,100);
     player.setOrigin(playerSize/2,playerSize/2);
     player.setFillColor(sf::Color(100,200,10));
     pix.setFillColor(sf::Color(10,100,50));
-    screenBar.setFillColor(sf::Color(10,10,200));
 
 
     while (app.isOpen())
@@ -197,30 +199,47 @@ int main()
             Vlength = sqrt(pow(player.getPosition().x - lines[1].position.x,2)+pow(player.getPosition().y - lines[1].position.y,2));
             Hlength = sqrt(pow(player.getPosition().x - Hlines[1].position.x,2)+pow(player.getPosition().y - Hlines[1].position.y,2));
 
-            //check
+            //check if vertical line is longer than the horizontal one
             if (Vlength > Hlength){
                 Slines[1].position = Hlines[1].position;
                 Slength = Hlength;
-                //set color based on the wall type (for example doors have one color and normal walls have other colors
-                if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
-                    screenBar.setFillColor(sf::Color(WallColor[0]-Slength/2,WallColor[1]-Slength/2,WallColor[2]-Slength/2));
-                }
-                else{
-                    screenBar.setFillColor(sf::Color(DoorColor[0],DoorColor[1],DoorColor[2]));
-                }
             }
             else {
                 Slines[1].position = lines[1].position;
                 Slength =Vlength;
-                //set color based on the wall orientation
-                if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
-                    screenBar.setFillColor(sf::Color(WallColor[0]-Slength/2+30,WallColor[1]-Slength/2+30,WallColor[2]-Slength/2+30));
-                }
-                else{
-                    screenBar.setFillColor(sf::Color(DoorColor[0]+30,DoorColor[1]+30,DoorColor[2]+30));
-                }
+
             }
+            //get a number from 0 to 1 that is multiplyed with the color (it makes the further objects dimmer than closer ones)
+            float dimmer = Slength/pixSize/DOF*200;
+            //draw the walls black
+            if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize]){
+                screenBarBlack.setFillColor(sf::Color(0,0,0));
+            }
+            //set color based on the wall type (for example doors have one color and normal walls have other colors
+            if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
+                screenBar.setFillColor(sf::Color(WallColor[0],WallColor[1],WallColor[2],-dimmer));
+            }
+            else if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 2){
+                screenBar.setFillColor(sf::Color(DoorColor[0],DoorColor[1],DoorColor[2],-dimmer));
+            }
+            else if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 3){
+                screenBar.setFillColor(sf::Color(OrangeColor[0],OrangeColor[1],OrangeColor[2],-dimmer));
+            }
+            else if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 4){
+                screenBar.setFillColor(sf::Color(BlueColor[0],BlueColor[1],BlueColor[2],-dimmer));
+            }
+            else if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 5){
+                screenBar.setFillColor(sf::Color(WierdColor[0],WierdColor[1],WierdColor[2],-dimmer));
+            }
+            else if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 0){
+                screenBar.setFillColor(sf::Color(100,100,100,100));
+            }
+            else{
+                screenBar.setFillColor(sf::Color(255,0,0));
+            }
+
             app.draw(Slines);
+
 
             //drawing the 3d View
 
@@ -228,11 +247,14 @@ int main()
             //fixing the fish eye effect (got this from a cool tutorial, cuz i was too dumb to figure this out myself)
             //float DeltaAngle = playerDirection-rayDirection;
             //if(DeltaAngle<0){DeltaAngle+=2*PI/180;}if(DeltaAngle>2*PI/180){DeltaAngle-=2*PI/180;}
-            //Slength = Slength * cos(DeltaAngle/180);
+            //Slength = Slength * cos(DeltaAngle);
 
             //fix this for more screen space on the right
             screenBar.setPosition((screenWidth - screenWidth/4+screenBarWidth/2)+i*screenBarWidth,screenHeight/2-((pixSize*screenHeight)/Slength)/2);
+            screenBarBlack.setPosition((screenWidth - screenWidth/4+screenBarWidth/2)+i*screenBarWidth,screenHeight/2-((pixSize*screenHeight)/Slength)/2);
             screenBar.setSize(sf::Vector2f(screenBarWidth,(pixSize*screenHeight)/Slength));
+            screenBarBlack.setSize(sf::Vector2f(screenBarWidth,(pixSize*screenHeight)/Slength));
+            app.draw(screenBarBlack);
             app.draw(screenBar);
         }
         app.display();
