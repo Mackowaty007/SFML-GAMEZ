@@ -13,16 +13,17 @@ float ReturnSin(float angle){
 }
 int main()
 {
-    sf::VertexArray lines(sf::LineStrip,2);
-    sf::VertexArray Hlines(sf::LineStrip,2);
-    sf::VertexArray Slines(sf::LineStrip,2);
+    sf::VertexArray lines(sf::LineStrip,3);
+    sf::VertexArray Hlines(sf::LineStrip,3);
+    sf::VertexArray Slines(sf::LineStrip,3);
     lines[0].color = sf::Color(255,20,20);
     lines[1].color = sf::Color(255,20,20);
     Hlines[0].color = sf::Color(20,200,210);
     Hlines[1].color = sf::Color(20,200,210);
+    //Slines[2].color = sf::Color(200,30,30);
 
     //setup
-    int screenWidth = 1000; int screenHeight = 500; int pixSize = 20; int arraySize = 20; int playerSize = 10; int playerDirection = 0;int rayDirection; int FOV = 90/2;int DOF = 20;int sprintSpeed;
+    int screenWidth = 1000; int screenHeight = 500; int pixSize = 20; int arraySize = 20; int playerSize = 10; int playerDirection = 0;int rayDirection; int FOV = 80/2;int DOF = 20;int sprintSpeed;sf::Vector2f LightSourcePosition(200,200);
     int NumberOfRaySteps = 1; float Hlength,Vlength,Slength; int screenBarWidth = screenWidth/4/FOV;
     int WallColor[3]={200,200,200};int DoorColor[3]={0,200,0}; int OrangeColor[3]={255, 100, 0};int BlueColor[3]={0, 0, 255};int WierdColor[3]={255, 192, 203};int CellingColor[3]={30,70,100};int FloorColor[3]={100,100,100};
 
@@ -90,6 +91,20 @@ int main()
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
             player.move(ReturnSin(-playerDirection)/10*sprintSpeed,ReturnCos(playerDirection)/10*sprintSpeed);
+        }
+
+        //moving the light source
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
+            LightSourcePosition.y-=0.5f;
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
+            LightSourcePosition.y+=0.5f;
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
+            LightSourcePosition.x-=0.5f;
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+            LightSourcePosition.x+=0.5f;
         }
 
         //frame rendering
@@ -209,12 +224,33 @@ int main()
                 Slength =Vlength;
 
             }
+            /*
+            //draw the light rays
+            lines[0].position = player.getPosition();
+            Hlines[0].position = player.getPosition();
+            lines[2].position = LightSourcePosition;
+            Hlines[2].position = LightSourcePosition;
+
+            app.draw(lines);
+            app.draw(Hlines);
+            */
+            Slines[2].position = LightSourcePosition;
+
+            //calculate the distance between the wall and the light source
+            float LightDistance = sqrt(pow(Slines[1].position.x-LightSourcePosition.x,2)+pow(Slines[1].position.y-LightSourcePosition.y,2));
+
+
+
+
             //get a number from 0 to 1 that is multiplyed with the color (it makes the further objects dimmer than closer ones)
-            float dimmer = Slength/pixSize/DOF*200;
+            //float dimmer = Slength/pixSize/DOF*200;
+            float dimmer = LightDistance/pixSize/DOF*200;
+
             //draw the walls black
             if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize]){
                 screenBarBlack.setFillColor(sf::Color(0,0,0));
             }
+
             //set color based on the wall type (for example doors have one color and normal walls have other colors
             if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 1){
                 screenBar.setFillColor(sf::Color(WallColor[0],WallColor[1],WallColor[2],-dimmer));
@@ -232,7 +268,7 @@ int main()
                 screenBar.setFillColor(sf::Color(WierdColor[0],WierdColor[1],WierdColor[2],-dimmer));
             }
             else if(map[static_cast<int>(Slines[1].position.x)/pixSize][static_cast<int>(Slines[1].position.y)/pixSize] == 0){
-                screenBar.setFillColor(sf::Color(100,100,100,100));
+                screenBar.setFillColor(sf::Color(100,100,100));
             }
             else{
                 screenBar.setFillColor(sf::Color(255,0,0));
