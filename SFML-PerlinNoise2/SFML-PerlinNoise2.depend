@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1631691623 source:/home/mateusz/Desktop/projects/SFML-PerlinNoise2/main.cpp
+	<SFML/Graphics.hpp>
+	<iostream>
+	<math.h>
+
