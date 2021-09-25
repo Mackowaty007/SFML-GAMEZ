@@ -2,10 +2,17 @@
 #include <iostream>
 #include <math.h>
 
-#define GRID_S 5
-#define SCREEN_H 500
-#define SCREEN_W 500
+#define GRID_S 10
+#define SCREEN_H 1000
+#define SCREEN_W 1000
 #define PI 3.14159265
+
+int lerp(int A,int B,float t){
+    return A+t*(B-A);
+}
+int slerp(int A,int B,float t){
+    return A+((1+sin(t*PI-PI/2))/2)*(B-A);
+}
 
 int main()
 {
@@ -15,8 +22,6 @@ int main()
     sf::VertexArray lines(sf::LinesStrip,2);
     lines[0].color = sf::Color(255,20,20);
     lines[1].color = sf::Color(255,20,20);
-
-    bool NormalizeVectors = false;
 
     int map[SCREEN_W][SCREEN_H] = {{0}};
 
@@ -35,33 +40,24 @@ int main()
         for(int y=0;y<SCREEN_H;y++){
             pix.setPosition(x,y);
 
-            float VectorGX;
-            float VectorGY;
-            float VectorPX;
-            float VectorPY;
-            int PixColor = 0;
 
-            for (int X0=0;X0<2;X0++){
-                for (int Y0=0;Y0<2;Y0++){
-                    VectorGX = cos(map[x/GRID_S+X0][y/GRID_S+Y0] * PI / 180);
-                    VectorGY = sin(map[x/GRID_S+X0][y/GRID_S+Y0] * PI / 180);
-                    VectorPX = x-(x/GRID_S*GRID_S);
-                    VectorPY = y-(y/GRID_S*GRID_S);
+            float VectorGUL[2] = {cos(map[x/GRID_S][y/GRID_S] * PI / 180),sin(map[x/GRID_S][y/GRID_S] * PI / 180)};
+            float VectorGUR[2] = {cos(map[x/GRID_S+1][y/GRID_S] * PI / 180),sin(map[x/GRID_S+1][y/GRID_S] * PI / 180)};
+            float VectorGDL[2] = {cos(map[x/GRID_S][y/GRID_S+1] * PI / 180),sin(map[x/GRID_S][y/GRID_S+1] * PI / 180)};
+            float VectorGDR[2] = {cos(map[x/GRID_S+1][y/GRID_S+1] * PI / 180),sin(map[x/GRID_S+1][y/GRID_S+1] * PI / 180)};
 
-                    //normalize P Vector
-                    float VectorPLength = sqrt(pow(VectorPX,2)+pow(VectorPY,2));
-                    if(NormalizeVectors){
-                        VectorPX = VectorPX/VectorPLength;
-                        VectorPY = VectorPY/VectorPLength;
-                    }
-                    else{
-                        VectorPX = VectorPX/(GRID_S/2*sqrt(2));
-                        VectorPY = VectorPY/(GRID_S/2*sqrt(2));
-                    }
+            float VectorPX = (x-(x/GRID_S*GRID_S))/(GRID_S/2*sqrt(2));
+            float VectorPY = (y-(y/GRID_S*GRID_S))/(GRID_S/2*sqrt(2));
 
-                    PixColor = PixColor + ((VectorGX * VectorPX + VectorGY * VectorPY)*63+127);
-                }
-            }
+            float dotProductUL = (VectorGUL[0] * VectorPX + VectorGUL[1] * VectorPY)*64+127;
+            float dotProductDL = (VectorGDL[0] * VectorPX + VectorGDL[1] * VectorPY)*64+127;
+            float dotProductUR = (VectorGUR[0] * VectorPX + VectorGUR[1] * VectorPY)*64+127;
+            float dotProductDR = (VectorGDR[0] * VectorPX + VectorGDR[1] * VectorPY)*64+127;
+
+            //lerp(dotProductUL,dotProductUR,static_cast<float>(x-(x/GRID_S*GRID_S))/GRID_S);
+
+
+            int PixColor = dotProductUL + dotProductDL + dotProductUR + dotProductDR;
 
             PixColor = PixColor/4;
 
