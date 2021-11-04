@@ -8,19 +8,21 @@
 #define WINDOW_H 400
 #define WINDOW_W 400
 #define NEURON_SIZE 30
+#define WEB_HEIGHT 3
+#define WEB_WIDHT 3
 
 float obstacle1 = HEIGHT;
 float obstacle2 = HEIGHT;
 float obstacle3 = HEIGHT;
 float carPos = 0.5f;
-float neuronI1, neuronI2, neuronI3;
-float biasI1, biasI2, biasI3;
-float multiplyerI1, multiplyerI2, multiplyerI3;
-float neuronO;
-float biasO;
+float neuron[WEB_WIDHT][WEB_HEIGHT];
+float neuronOutput[WEB_WIDHT][WEB_HEIGHT];
+float bias[WEB_WIDHT][WEB_HEIGHT];
+float multiplyer[WEB_WIDHT][WEB_HEIGHT];
 int score = 0;
 float velocity = 0.0005f;
-float neuronOutputI1,neuronOutputI2,neuronOutputI3;
+
+
 
 float clamp(float variable, float min,float max){
     if (variable < min){
@@ -74,7 +76,7 @@ int main()
     sf::RenderWindow app(sf::VideoMode(WIDTH, HEIGHT), "the car game");
     sf::RectangleShape car(sf::Vector2f(WIDTH/3,100));
     sf::RectangleShape obstacle(sf::Vector2f(WIDTH/3,100));
-    sf::CircleShape neuron;
+    sf::CircleShape Neuron;
     sf::VertexArray line(sf::LineStrip,2);
     sf::Font font;
     font.loadFromFile("Arial.ttf");
@@ -84,9 +86,9 @@ int main()
     text.setFillColor(sf::Color::Green);
     text.setPosition(WIDTH-20,0);
 
-    neuron.setOrigin(NEURON_SIZE/2,NEURON_SIZE/2);
-    neuron.setRadius(NEURON_SIZE/2);
-    neuron.setOutlineThickness(-2);
+    Neuron.setOrigin(NEURON_SIZE/2,NEURON_SIZE/2);
+    Neuron.setRadius(NEURON_SIZE/2);
+    Neuron.setOutlineThickness(-2);
 
     car.setFillColor(sf::Color(200,10,20));
     obstacle.setFillColor((sf::Color(20,110,50)));
@@ -94,12 +96,12 @@ int main()
     sf::Clock deltaClock;
 
     //generate random weights and biases
-    biasI1 = 0;//(float(rand())/float((RAND_MAX)) * 0.5f);
-    biasI2 = 0;//(float(rand())/float((RAND_MAX)) * 0.5f);
-    biasI3 = 0;//(float(rand())/float((RAND_MAX)) * 0.5f);
-    multiplyerI1 = (float(rand())/float((RAND_MAX)) * 1);
-    multiplyerI2 = (float(rand())/float((RAND_MAX)) * 1);
-    multiplyerI3 = (float(rand())/float((RAND_MAX)) * 1);
+    bias[0][0] = 0;//(float(rand())/float((RAND_MAX)) * 0.5f);
+    bias[0][1] = 0;//(float(rand())/float((RAND_MAX)) * 0.5f);
+    bias[0][2] = 0;//(float(rand())/float((RAND_MAX)) * 0.5f);
+    multiplyer[0][0] = (float(rand())/float((RAND_MAX)) * 1);
+    multiplyer[0][1] = (float(rand())/float((RAND_MAX)) * 1);
+    multiplyer[0][2] = (float(rand())/float((RAND_MAX)) * 1);
 
     while (app.isOpen())
     {
@@ -117,9 +119,9 @@ int main()
                 app.close();
         }
         //set output
-        neuronO = neuronOutputI1 + neuronOutputI2 + neuronOutputI3;
+        neuron[2][0] = neuronOutput[0][0] + neuronOutput[0][1] + neuronOutput[0][2];
 
-        carPos = neuronO;
+        carPos = neuron[2][0];
         if (carPos < 0.3f){
             carPos = 0;
         }
@@ -138,6 +140,14 @@ int main()
         if(obstacle1 + 100 > HEIGHT - 100 && obstacle1 < HEIGHT && carPos == 0 || obstacle2 + 100 > HEIGHT - 100 && obstacle2 < HEIGHT && carPos == 0.5f || obstacle3 + 100 > HEIGHT - 100 && obstacle3 < HEIGHT && carPos == 1){
             score ++;
         }
+
+        neuron[0][0] = obstacle1/HEIGHT;
+        neuron[0][1] = obstacle2/HEIGHT;
+        neuron[0][2] = obstacle3/HEIGHT;
+
+        neuron[0][0] = clamp(neuron[0][0],0,1);
+        neuron[0][1] = clamp(neuron[0][1],0,1);
+        neuron[0][2] = clamp(neuron[0][2],0,1);
 
         //rendering
         app.clear();
@@ -158,59 +168,53 @@ int main()
 
         text.setString("score = " + std::to_string(score));
 
-        neuronI1 = obstacle1/HEIGHT;
-        neuronI2 = obstacle2/HEIGHT;
-        neuronI3 = obstacle3/HEIGHT;
+        for(int y = 0;y<WEB_HEIGHT;y++){
+            //input neurons
+            Neuron.setPosition(NEURON_SIZE + 10,NEURON_SIZE);
+            Neuron.setFillColor(sf::Color(neuron[0][0]*255,neuron[0][0]*255,neuron[0][0]*255));
+            Neuron.setOutlineColor(sf::Color(bias[0][0] * 255,bias[0][0] * 255,bias[0][0] * 255));
+            window.draw(Neuron);
 
-        neuronI1 = clamp(neuronI1,0,1);
-        neuronI2 = clamp(neuronI2,0,1);
-        neuronI3 = clamp(neuronI3,0,1);
+            Neuron.setPosition(NEURON_SIZE + 10,2*NEURON_SIZE);
+            Neuron.setFillColor(sf::Color(neuron[0][1]*255,neuron[0][1]*255,neuron[0][1]*255));
+            Neuron.setOutlineColor(sf::Color(bias[0][1] * 255,bias[0][1] * 255,bias[0][1] * 255));
+            window.draw(Neuron);
 
-        //input neurons
-        neuron.setPosition(NEURON_SIZE + 10,NEURON_SIZE);
-        neuron.setFillColor(sf::Color(neuronI1*255,neuronI1*255,neuronI1*255));
-        neuron.setOutlineColor(sf::Color(biasI1 * 255,biasI1 * 255,biasI1 * 255));
-        window.draw(neuron);
+            Neuron.setPosition(NEURON_SIZE + 10,3*NEURON_SIZE);
+            Neuron.setFillColor(sf::Color(neuron[0][2]*255,neuron[0][2]*255,neuron[0][2]*255));
+            Neuron.setOutlineColor(sf::Color(bias[0][2] * 255,bias[0][2] * 255,bias[0][2] * 255));
+            window.draw(Neuron);
 
-        neuron.setPosition(NEURON_SIZE + 10,2*NEURON_SIZE);
-        neuron.setFillColor(sf::Color(neuronI2*255,neuronI2*255,neuronI2*255));
-        neuron.setOutlineColor(sf::Color(biasI2 * 255,biasI2 * 255,biasI2 * 255));
-        window.draw(neuron);
-
-        neuron.setPosition(NEURON_SIZE + 10,3*NEURON_SIZE);
-        neuron.setFillColor(sf::Color(neuronI3*255,neuronI3*255,neuronI3*255));
-        neuron.setOutlineColor(sf::Color(biasI3 * 255,biasI3 * 255,biasI3 * 255));
-        window.draw(neuron);
-
-        //output neurons
-        neuron.setPosition(6*NEURON_SIZE + 10,NEURON_SIZE*2);
-        neuron.setFillColor(sf::Color(neuronO*255,neuronO*255,neuronO*255));
-        neuron.setOutlineColor(sf::Color(biasO * 255,biasO * 255,biasO * 255));
-        window.draw(neuron);
+            //output neurons
+            Neuron.setPosition(6*NEURON_SIZE + 10,NEURON_SIZE*2);
+            Neuron.setFillColor(sf::Color(neuron[2][0]*255,neuron[2][0]*255,neuron[2][0]*255));
+            Neuron.setOutlineColor(sf::Color(bias[2][0] * 255,bias[2][0] * 255,bias[2][0] * 255));
+            window.draw(Neuron);
+        }
 
         //draw connections
         line[0].position = sf::Vector2f(NEURON_SIZE + 10,NEURON_SIZE);
         line[1].position = sf::Vector2f(6*NEURON_SIZE + 10,NEURON_SIZE*2);
-        neuronOutputI1 = neuronI1*multiplyerI1+biasI1;
-        neuronOutputI1 = clamp(neuronOutputI1,0,1);
-        line[0].color = sf::Color(neuronOutputI1*255,neuronOutputI1*255,neuronOutputI1*255);
-        line[1].color = sf::Color(neuronOutputI1*255,neuronOutputI1*255,neuronOutputI1*255);
+        neuronOutput[0][0] = neuron[0][0]*multiplyer[0][0]+bias[0][0];
+        neuronOutput[0][0] = clamp(neuronOutput[0][0],0,1);
+        line[0].color = sf::Color(neuronOutput[0][0]*255,neuronOutput[0][0]*255,neuronOutput[0][0]*255);
+        line[1].color = sf::Color(neuronOutput[0][0]*255,neuronOutput[0][0]*255,neuronOutput[0][0]*255);
         window.draw(line);
 
         line[0].position = sf::Vector2f(NEURON_SIZE + 10,2*NEURON_SIZE);
         line[1].position = sf::Vector2f(6*NEURON_SIZE + 10,NEURON_SIZE*2);
-        neuronOutputI2 = neuronI2*multiplyerI2+biasI2;
-        neuronOutputI2 = clamp(neuronOutputI2,0,1);
-        line[0].color = sf::Color(neuronOutputI2*255,neuronOutputI2*255,neuronOutputI2*255);
-        line[1].color = sf::Color(neuronOutputI2*255,neuronOutputI2*255,neuronOutputI2*255);
+        neuronOutput[0][1] = neuron[0][1]*multiplyer[0][1]+bias[0][1];
+        neuronOutput[0][1] = clamp(neuronOutput[0][1],0,1);
+        line[0].color = sf::Color(neuronOutput[0][1]*255,neuronOutput[0][1]*255,neuronOutput[0][1]*255);
+        line[1].color = sf::Color(neuronOutput[0][1]*255,neuronOutput[0][1]*255,neuronOutput[0][1]*255);
         window.draw(line);
 
         line[0].position = sf::Vector2f(NEURON_SIZE + 10,3*NEURON_SIZE);
         line[1].position = sf::Vector2f(6*NEURON_SIZE + 10,NEURON_SIZE*2);
-        neuronOutputI3 = neuronI3*multiplyerI3+biasI3;
-        neuronOutputI3 = clamp(neuronOutputI3,0,1);
-        line[0].color = sf::Color(neuronOutputI3*255,neuronOutputI3*255,neuronOutputI3*255);
-        line[1].color = sf::Color(neuronOutputI3*255,neuronOutputI3*255,neuronOutputI3*255);
+        neuronOutput[0][2] = neuron[0][2]*multiplyer[0][2]+bias[0][2];
+        neuronOutput[0][2] = clamp(neuronOutput[0][2],0,1);
+        line[0].color = sf::Color(neuronOutput[0][2]*255,neuronOutput[0][2]*255,neuronOutput[0][2]*255);
+        line[1].color = sf::Color(neuronOutput[0][2]*255,neuronOutput[0][2]*255,neuronOutput[0][2]*255);
         window.draw(line);
 
         window.draw(text);
