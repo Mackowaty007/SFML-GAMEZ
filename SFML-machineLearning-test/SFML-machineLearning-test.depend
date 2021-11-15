@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1636134737 source:/home/mackowaty/Desktop/SFML-machineLearning-test/main.cpp
+1636971104 source:/home/mackowaty/Desktop/SFML-machineLearning-test/main.cpp
 	<SFML/Graphics.hpp>
 	<iostream>
 	<math.h>
+	<string.h>
 
 1539885013 /home/mackowaty/Documents/SFML-2.5.1/include/SFML/Graphics.hpp
 	<SFML/Window.hpp>
