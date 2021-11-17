@@ -8,11 +8,12 @@
 #define WINDOW_H 400
 #define WINDOW_W 400
 #define NEURON_SIZE 40
-#define WEB_HEIGHT 3
-#define WEB_WIDHT 2
-#define GENERATION_TIME 5
-#define GENERATION_HOP 0
-#define VELOCITY 0.001f
+#define WEB_HEIGHT 4
+#define WEB_WIDHT 4
+#define GENERATION_TIME 8
+#define GENERATION_HOP 0.1f
+#define VELOCITY 0.0005f
+//#define NUMBER_OF_SPECIES 10
 
 
 float obstacle1 = HEIGHT , obstacle2 = HEIGHT , obstacle3 = HEIGHT;
@@ -29,7 +30,7 @@ float old_multiplyer[WEB_WIDHT][WEB_HEIGHT][WEB_HEIGHT];
 
 int score = 0;
 long int lastScore = 99999999999;
-int currentGen = 0;
+int currentGen = 1;
 
 int obstacle_configuration_incrementer = 0;
 
@@ -45,7 +46,6 @@ float clamp(float variable){
 }
 
 //random spawn obstacles
-/*
 void spawnObstacles(){
     //spawn obstacles
     switch (rand() % 6){
@@ -81,7 +81,8 @@ void spawnObstacles(){
         break;
     }
 }
-*/
+
+/*
 // not random spawn obstacles
 void spawnObstacles(){
     obstacle_configuration_incrementer ++;
@@ -117,7 +118,7 @@ void spawnObstacles(){
         obstacle3 = -100;
         break;
     }
-}
+}*/
 
 int main()
 {
@@ -132,8 +133,7 @@ int main()
     sf::Text text;
     text.setFont(font);
     text.setCharacterSize(15);
-    text.setFillColor(sf::Color::Green);
-    text.setPosition(WIDTH-60,0);
+    text.setFillColor(sf::Color::White);
 
     Neuron.setOrigin(NEURON_SIZE/2,NEURON_SIZE/2);
     Neuron.setRadius(NEURON_SIZE/2);
@@ -156,9 +156,18 @@ int main()
     }
 
     //debug purpouses only!!
-    multiplyer[0][0][0] = -1;
-    multiplyer[0][1][1] = -1;
-    multiplyer[0][2][2] = -1;
+    /*
+    multiplyer[0][0][0] = -0.1f;
+    multiplyer[0][1][1] = -0.1f;
+    multiplyer[0][2][2] = -0.1f;
+    float dumbVar = 0.8;
+    multiplyer[0][0][1] = dumbVar;
+    multiplyer[0][0][2] = dumbVar;
+    multiplyer[0][1][0] = dumbVar;
+    multiplyer[0][1][2] = dumbVar;
+    multiplyer[0][2][0] = dumbVar;
+    multiplyer[0][2][1] = dumbVar;
+    */
 
     while (app.isOpen())
     {
@@ -172,12 +181,11 @@ int main()
         sf::Time time1 = genClock.getElapsedTime();
         if(time1.asSeconds() > GENERATION_TIME){
             spawnObstacles();
+            //delete this later!!!!!!!!!!!!!!!!!!!!!!!!
+            obstacle_configuration_incrementer = 0;
 
             genClock.restart();
             if(score > lastScore){
-                //delete this later!!!!!!!!!!!!!!!!!!!!!!!!
-                obstacle_configuration_incrementer = 0;
-
                 std::cout << "this gen was worse than the last one - score = " << score << " last score = " << lastScore << std::endl;
                 score = 0;
                 memcpy(bias, old_bias, sizeof(bias));
@@ -194,9 +202,6 @@ int main()
                 }
             }
             else{
-                //delete this later!!!!!!!!!!!!!!!!!!!!!!!!
-                obstacle_configuration_incrementer = 0;
-
                 std::cout << "this gen was better than the last one - score = " << score << " last score = " << lastScore << std::endl;
                 lastScore = score;
                 score = 0;
@@ -245,9 +250,12 @@ int main()
             score += dt.asMicroseconds();
         }
 
-        neuron[0][0] = obstacle1/HEIGHT;
-        neuron[0][1] = obstacle2/HEIGHT;
-        neuron[0][2] = obstacle3/HEIGHT;
+        neuron[0][0] = obstacle1/(HEIGHT+300);
+        neuron[0][1] = obstacle2/(HEIGHT+300);
+        neuron[0][2] = obstacle3/(HEIGHT+300);
+        neuron[0][0] = clamp(neuron[0][0]);
+        neuron[0][1] = clamp(neuron[0][1]);
+        neuron[0][2] = clamp(neuron[0][2]);
 
         //rendering
         app.clear();
@@ -265,9 +273,6 @@ int main()
         app.display();
 
         window.clear();
-
-        text.setString("score = " + std::to_string(score) + "gen = " + std::to_string(currentGen));
-
 
         for(int x = 0;x<WEB_WIDHT;x++){
             for(int y = 0;y<WEB_HEIGHT;y++){
@@ -287,6 +292,10 @@ int main()
                     Neuron.setOutlineColor(sf::Color(-bias[x][y]*255,0,0));
                 }
                 window.draw(Neuron);
+
+                text.setPosition((2*x * NEURON_SIZE + NEURON_SIZE)-5,y*NEURON_SIZE + NEURON_SIZE);
+                text.setString(std::to_string(neuron[x][y]));
+                window.draw(text);
 
                 neuron[x+1][y] = 0;
 
@@ -309,11 +318,14 @@ int main()
 
                         //set next web layer neuron values
                         neuron[x+1][y] += neuron[x][allY] * multiplyer[x][y][allY] + bias[x+1][y];
+                        neuron[x+1][y] = clamp(neuron[x+1][y]);
                     }
                 }
             }
         }
 
+        text.setPosition(WIDTH-60,0);
+        text.setString("score = " + std::to_string(score) + "gen = " + std::to_string(currentGen));
         window.draw(text);
 
         window.display();
